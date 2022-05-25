@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Based on state (REACTIVE) manipulation</title>
+  <style>
+    * {
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>UI Based on state (REACTIVE) manipulation</h1>
+  <form id="todo-form">
+    <input type="text" id="todo-item" placeholder="Task">
+    <input type="submit" value="Add">
+  </form>
+
+  <h2>Todo list</h2>
+  <ul id="todo-list"></ul>
+
+  <script>
+    const item = document.getElementById("todo-item"),
+      list = document.getElementById("todo-list"),
+
+      state = {
+        todoList: [],
+      },
+      // CREATE ELEMENTS FOR UI
+      template = () => {
+        if (state.todoList.length < 1) return `<p>Todo list without tasks</p>`
+        let todos = state.todoList.map(item => `<li>${item}</li>`).join("")
+        return todos
+      },
+      // RENDER ELEMENTS FOR UI
+      render = () => {
+        console.log(state);
+        if (!list) return;
+        list.innerHTML = template();
+      },
+      // UPDATE STATE
+      setState = (object) => {
+        for (let key in object) {
+          if (Object.hasOwn(state, key)) {
+            state[key] = object[key];
+          }
+        }
+        render();
+      },
+      getState = () => JSON.parse(JSON.stringify(state))
+
+    document.addEventListener("DOMContentLoaded", render);
+
+    // DEFAULT STATE VALUE
+    setState({
+      todoList: ["Task_1", "Task_2", "Task_3"]
+    })
+
+    // Mutating the original state (NOT RECOMENDED)
+    // - Why?
+    // It's a bad practice to manipulate the original array or object (in this case called State)
+    // In Javascript if you do the code expresed down below it will cause you big trouble. 
+    // You *always* want to create a copy of the original Array or Object, and *then* add whatever you feel like adding
+    const items = state.todoList;
+    items.push("Task_4");
+    console.log("Mutating directly original state WRONG!", state)
+    // Now the original Object "state" will be permantently modified with this. YOU CAN do it, but YOU SHOULDN'T. So in summary:
+    // If you mutate your state, and if it breaks, you won't know where to look into because all the values will be mutated somewhere. 
+
+
+
+    document.addEventListener("submit", event => {
+      if (!event.target.matches("#todo-form")) return false;
+
+      event.preventDefault();
+
+      // So, the CORRECT way will be this one:
+      const lastState = getState();
+      lastState.todoList.push(item.value);
+      setState({ todoList: lastState.todoList });
+      // We first created the function getState() that creates a copy from the original state and returns it
+      // then we push inside of that new object our new item.value. So, we modify the our Object through setState() directly
+
+      // RESET INPUT
+      item.value = "";
+      item.focus();
+    })
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UI Based on state manipulation</title>
+  <style>
+    * {
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <h1>UI Based on state manipulation</h1>
+  <form id="todo-form">
+    <input type="text" id="todo-item" placeholder="Task">
+    <input type="submit" value="Add">
+  </form>
+
+  <h2>Todo list</h2>
+  <ul id="todo-list"></ul>
+
+<script>
+  const item = document.getElementById("todo-item"),
+        list = document.getElementById("todo-list"),
+        state = {
+          todoList: [],
+        },
+        template = () => {
+          if(state.todoList.length < 1) return `<p>Todo list without tasks</p>`
+          let todos = state.todoList.map(item => `<li>${item}</li>`).join("")
+          return todos
+        },
+        // Render elements from template function
+        render = () => {
+          console.log(state);
+          if(!list) return;
+          list.innerHTML = template();
+        }
+        document.addEventListener("DOMContentLoaded", render);
+
+  document.addEventListener("submit", event => {
+    if (!event.target.matches("#todo-form")) return false;
+
+    event.preventDefault();
+
+    // Update state
+    if(!item) return;
+    state.todoList.push(item.value);
+    render();
+
+    // Empty input
+    item.value = "";
+    item.focus();
+  })
+</script>
+</body>
+</html>

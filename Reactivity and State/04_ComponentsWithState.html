@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How a component manages state locally</title>
+  <style>
+    * {
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>How a component manages state locally</h1>
+  <form id="todo-form">
+    <input type="text" id="todo-item" placeholder="Task">
+    <input type="submit" value="Add">
+  </form>
+
+  <h2>Todo list</h2>
+  <ul id="todo-list"></ul>
+
+  <script>
+    const item = document.getElementById("todo-item"),
+      list = document.getElementById("todo-list"),
+
+      // GLOBAL STATE
+      state = {
+        todoList: [],
+        name: "",
+      },
+
+      // ELEMENTS FOR THE UI
+      template = () => {
+        if (template.data.todoList.length < 1) return `<p>Todo list without tasks</p>`
+        let todos = template.data.todoList.map(item => `<li>${item}</li>`).join("")
+        return todos
+      },
+
+      // RENDER ELEMENTS ON THE UI
+      render = () => {
+        console.log("Global state: ", state);
+        console.log("Local state: ", template.data);
+        if (!list) return;
+        list.innerHTML = template();
+      },
+
+      // UPDATE STATE
+      setState = (object) => {
+        for (let key in object) {
+          if (Object.hasOwn(template.data, key)) {
+            template.data[key] = object[key];
+          }
+        }
+        render();
+      },
+
+      // Inmutable copy of the original state
+      getState = () => JSON.parse(JSON.stringify(template.data))
+
+
+
+    document.addEventListener("DOMContentLoaded", render);
+
+    // LOCAL STATE
+    template.data = {
+      todoList: []
+    }
+
+    // DEFAULT VALUE OF STATE
+    setState({
+      todoList: ["Task_1", "Task_2", "Task_3"]
+    })
+
+
+    document.addEventListener("submit", event => {
+      if (!event.target.matches("#todo-form")) return false;
+
+      event.preventDefault();
+
+      // In this example we won't need this part of the code because we are updating our local state, not the global one
+
+      // Update state
+      if (!item) return;
+      // state.todoList.push(item.value);
+      // render();
+
+      // REACTIVE UPDATE OF LOCAL STATE
+      const lastState = getState();
+      lastState.todoList.push(item.value);
+      setState({ todoList: lastState.todoList });
+
+      // RESET INPUT
+      item.value = "";
+      item.focus();
+    })
+  </script>
+</body>
+
+</html>

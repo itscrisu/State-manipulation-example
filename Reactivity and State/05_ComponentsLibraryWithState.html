@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Components library with state</title>
+  <style>
+    * {
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Components library with state</h1>
+  <form id="todo-form">
+    <input type="text" id="todo-item" placeholder="Task">
+    <input type="submit" value="Add">
+  </form>
+
+  <h2>Todo list</h2>
+  <ul id="todo-list"></ul>
+  <script src="Component.js"></script>
+  <script>
+    const item = document.getElementById("todo-item"),
+      list = document.getElementById("todo-list"),
+
+      app = new Component({
+        element: "#todo-list",
+        data: {
+          todoList: []
+        },
+        template: function (props) {
+          if (props.todoList.length < 1) return `<p>Todo list without tasks</p>`
+          let todos = props.todoList.map(item => `<li>${item}</li>`).join("")
+
+          return todos
+        }
+      })
+
+    // we won't use these methods anymore in this example:
+    // RENDER ELEMENTS ON THE UI
+    // render = () => {
+    //   console.log("Global state: ", state);
+    //   console.log("Local state: ", template.data);
+    //   if (!list) return;
+    //   list.innerHTML = template();
+    // },
+
+    // UPDATE STATE
+    // setState = (object) => {
+    //   for (let key in object) {
+    //     if (Object.hasOwn(template.data, key)) {
+    //       template.data[key] = object[key];
+    //     }
+    //   }
+    //   render();
+    // },
+
+    // Inmutable copy of the original state
+    // getState = () => JSON.parse(JSON.stringify(template.data))
+
+    document.addEventListener("DOMContentLoaded", app.render);
+
+    // DEFAULT VALUE OF STATE
+    app.setState({
+      todoList: ["Task_1", "Task_2", "Task_3"]
+    })
+
+
+    document.addEventListener("submit", event => {
+      if (!event.target.matches("#todo-form")) return false;
+
+      event.preventDefault();
+
+
+      if (!item) return;
+
+      // REACTIVE UPDATE OF LOCAL STATE
+      const lastState = app.getState();
+      lastState.todoList.push(item.value);
+      app.setState({ todoList: lastState.todoList });
+
+      // RESET INPUT
+      item.value = "";
+      item.focus();
+    })
+  </script>
+</body>
+
+</html>
